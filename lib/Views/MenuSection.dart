@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MenuSection extends StatelessWidget {
-  final List menuItems = ["Message", "Online", "Groups", "Calls"];
+  final List menuItems = ["Messages", "Appels", "Status"];
   MenuSection({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
