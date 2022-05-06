@@ -1,7 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
 
-void main() {
+import 'package:OSF/Fonctions/FirestoreHelper.dart';
+import 'package:OSF/Views/DashboardMessage.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'library/lib.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
@@ -12,82 +20,177 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "messagerie test",
-      home: HomePage(),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the root of your application.
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  //Variables
+  String mail = "";
+  String password = "";
+  String prenom = "";
+  String nom = "";
+  List<bool> selections = [true, false];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.menu,
-              color: Colors.white,
-              size: 30,
-            )),
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.search_rounded,
-                color: Colors.white,
-                size: 30,
-              )),
-        ],
+        title: Text(widget.title),
       ),
-      body: Column(
-        children: [
-          MenuSection(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.green,
-        child: const Icon(
-          Icons.edit,
-          size: 20,
-        ),
-      ),
+      body: Center(
+          child: Container(
+        padding: const EdgeInsets.all(20),
+        child: bodyPage(),
+      )),
     );
   }
-}
 
-class MenuSection extends StatelessWidget {
-  final List menuItems = ["Message", "Online", "Groups", "Calls"];
-  MenuSection({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(15, 15, 15, 25),
-          child: Row(
-            children: menuItems.map((item) {
-              return Container(
-                margin: const EdgeInsets.only(right: 55),
-                child: Text(
-                  item,
-                  style: GoogleFonts.inter(
-                    color: Colors.white60,
-                    fontSize: 29,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+  Widget bodyPage() {
+    return Column(children: [
+      ToggleButtons(
+        children: const [Text("Inscription"), Text("Connexion")],
+        isSelected: selections,
+        selectedColor: Colors.red,
+        borderRadius: BorderRadius.circular(10),
+        disabledColor: Colors.white,
+        onPressed: (int selected) {
+          setState(() {
+            selections[selected] = true;
+            if (selected == 0) {
+              selections[1] = false;
+            } else {
+              selections[0] = false;
+            }
+          });
+        },
       ),
-    );
+      const SizedBox(height: 40),
+
+      //Prénom
+      (selections[0])
+          ? TextField(
+              decoration: InputDecoration(
+                  hintText: "Entrer votre prénom",
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20))),
+              onChanged: (texte) {
+                setState(() {
+                  prenom = texte;
+                });
+              })
+          : Container(),
+
+      const SizedBox(height: 40),
+
+      // Nom
+
+      (selections[0])
+          ? TextField(
+              decoration: InputDecoration(
+                  hintText: "Entrer votre nom",
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20))),
+              onChanged: (texte) {
+                setState(() {
+                  nom = texte;
+                });
+              })
+          : Container(),
+
+      const SizedBox(height: 40),
+
+      //Le mail
+      TextField(
+          decoration: InputDecoration(
+              hintText: "Entrer votre adresse mail",
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(20))),
+          onChanged: (texte) {
+            setState(() {
+              mail = texte;
+            });
+          }),
+
+      const SizedBox(height: 40),
+
+      //Le mot de passe
+
+      TextField(
+          obscureText: true,
+          decoration: InputDecoration(
+              hintText: "Entrer votre mot de passe",
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(20))),
+          onChanged: (String texte) {
+            setState(() {
+              password = texte;
+            });
+          }),
+      const SizedBox(height: 40),
+
+      //Bouton cliqubale
+
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        ElevatedButton(
+            onPressed: () {
+              if (selections[0] == true) {
+                FirestoreHelper()
+                    .Inscription(prenom, nom, mail, password)
+                    .then((value) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    //return Dashboard(mail : mail,password : password);
+                    return Dashboard();
+                  }));
+                }).catchError((error) {
+                  print(error);
+                });
+              } else {
+                FirestoreHelper().Connexion(mail, password).then((value) {
+                  setState(() {
+                    Myprofil = value;
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      //return Dashboard(mail : mail,password : password);
+                      return Dashboard();
+                    }));
+                  });
+                }).catchError((error) {
+                  print(error);
+                });
+              }
+            },
+            child: const Text("Validation")),
+        const SizedBox(width: 10),
+
+        /*InkWell(
+                    onTap :() {
+                      print("J'ai appuyer");
+                      Navigator.push(context,MaterialPageRoute(
+                          builder :( context){
+                            return SignIn();
+                          }
+                      ));
+                    },
+                    child: const Text("Inscription")
+
+                ),*/
+      ]),
+    ]);
   }
 }
