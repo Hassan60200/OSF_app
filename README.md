@@ -1,6 +1,6 @@
 # messagerie
 
-A new Flutter project.
+A new Flutter project by HASSAN DERKAOUI et SANDY RATIARAY
 
 ## Getting Started
 
