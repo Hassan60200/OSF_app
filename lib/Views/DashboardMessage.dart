@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:OSF/Components/MenuSection.dart';
 import 'package:OSF/Components/FavouriteSection.dart';
+import 'package:OSF/Components/MessageSection.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -34,6 +35,7 @@ class DashboardState extends State<Dashboard> {
         children: [
           MenuSection(),
           FavoriteSection(),
+          MessageSection(),
         ],
       ),
       floatingActionButton: FloatingActionButton(

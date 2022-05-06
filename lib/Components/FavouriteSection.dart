@@ -27,13 +27,8 @@ class FavoriteSection extends StatelessWidget {
     return Container(
       color: Colors.black,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: const BoxDecoration(
           color: Colors.green,
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(40),
-            topLeft: Radius.circular(40),
-          ),
         ),
         child: Column(
           children: [
